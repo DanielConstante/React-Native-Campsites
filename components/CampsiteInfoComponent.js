@@ -3,33 +3,39 @@ import { Text, View, ScrollView, FlatList } from 'react-native';
 import { Card, Icon } from 'react-native-elements';
 import { connect } from 'react-redux';
 import { baseUrl } from '../shared/baseUrl';
+import { postFavorite } from '../redux/ActionCreators';
 
 const mapStateToProps = state => {
     return {
         campsites: state.campsites,
-        comments: state.comments
+        comments: state.comments,
+        favorites: state.favorites
     };
-}; 
+};
+
+const mapDispatchToProps = {
+    postFavorite: campsiteId => (postFavorite(campsiteId))
+};
 
 function RenderCampsite(props) {
 
-    const {campsite} = props;
+    const { campsite } = props;
     if (campsite) {
         return (
             <Card
                 featuredTitle={campsite.name}
-                image={{uri: baseUrl + campsite.image}}
+                image={{ uri: baseUrl + campsite.image }}
             >
                 <Text style={{ margin: 10 }}>
                     {campsite.description}
                 </Text>
                 <Icon
-                  name={props.favorite ? 'heart' : 'heart-o' }
-                  type= 'font-awesome'
-                  color= '#f50'
-                  raised
-                  reverse
-                  onPress={() => props.favorite ? console.log('Already set as a favorite') :  props.markFavorite()}
+                    name={props.favorite ? 'heart' : 'heart-o'}
+                    type='font-awesome'
+                    color='#f50'
+                    raised
+                    reverse
+                    onPress={() => props.favorite ? console.log('Already set as a favorite') : props.markFavorite()}
                 />
             </Card>
         );
@@ -39,14 +45,14 @@ function RenderCampsite(props) {
 
 function RenderComments({ comments }) {
 
-    const RenderCommentItem = ({item}) => {
-         return (
-            <View style={{margin: 10}}>
-            <Text style={{fontSize:14}}>{item.text}</Text>
-            <Text style={{fontSize:12}}>{item.rating} Stars </Text>
-            <Text style={{fontSize:12}}>{`--${item.author}, ${item.date}`}</Text>
+    const RenderCommentItem = ({ item }) => {
+        return (
+            <View style={{ margin: 10 }}>
+                <Text style={{ fontSize: 14 }}>{item.text}</Text>
+                <Text style={{ fontSize: 12 }}>{item.rating} Stars </Text>
+                <Text style={{ fontSize: 12 }}>{`--${item.author}, ${item.date}`}</Text>
             </View>
-         );
+        );
     };
 
     return (
@@ -62,15 +68,8 @@ function RenderComments({ comments }) {
 
 class CampsiteInfo extends Component {
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            favorite: false
-        };
-    }
-
-    markFavorite() {
-        this.setState({favorite: true});
+    markFavorite(campsiteId) {
+        this.props.postFavorite(campsiteId);
     }
 
     static navigationOptions = {
@@ -83,9 +82,9 @@ class CampsiteInfo extends Component {
         const comments = this.props.comments.comments.filter(comment => comment.campsiteId === campsiteId);
         return (
             <ScrollView>
-                <RenderCampsite campsite={campsite} 
-                    favorite={this.state.favorite}
-                    markFavorite={() => this.markFavorite()}
+                <RenderCampsite campsite={campsite}
+                    favorite={this.props.favorites.includes(campsiteId)}
+                    markFavorite={() => this.markFavorite(campsiteId)}
                 />
                 <RenderComments comments={comments} />
             </ScrollView>
@@ -93,4 +92,4 @@ class CampsiteInfo extends Component {
     }
 }
 
-export default connect(mapStateToProps) (CampsiteInfo);
+export default connect(mapStateToProps, mapDispatchToProps)(CampsiteInfo);

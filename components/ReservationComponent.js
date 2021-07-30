@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         flex: 1,
         flexDirection: 'row',
-        margin: 20
+        margin: 20,
     },
     formLabel: {
         fontSize: 18,
@@ -157,7 +157,8 @@ const styles = StyleSheet.create({
     modalText: {
         fontSize: 18,
         margin: 10
-    }
+    },
+    
 });
 
 

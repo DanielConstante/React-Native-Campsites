@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, ScrollView, FlatList, Modal, Button, StyleSheet, Alert, PanResponder } from 'react-native';
+import { Text, View, ScrollView, FlatList, Modal, Button, StyleSheet, Alert, PanResponder, Share } from 'react-native';
 import { Card, Icon, Rating, Input } from 'react-native-elements';
 import { connect } from 'react-redux';
 import { baseUrl } from '../shared/baseUrl';
@@ -26,13 +26,13 @@ function RenderCampsite(props) {
     const view = React.createRef();
 
     const recognizeDrag = ({ dx }) => (dx < -200) ? true : false;
-    const  recognizeComment = ({ dx }) => (dx > 200) ? true : false;
+    const recognizeComment = ({ dx }) => (dx > 200) ? true : false;
 
     const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true,
         onPanResponderGrant: () => {
             view.current.rubberBand(1000)
-            .then(endState => console.log(endState.finished ? 'finished' : 'canceled'));
+                .then(endState => console.log(endState.finished ? 'finished' : 'canceled'));
         },
         onPanResponderEnd: (e, gestureState) => {
             console.log('pan responder end', gestureState);
@@ -54,20 +54,28 @@ function RenderCampsite(props) {
                     ],
                     { cancelable: false }
                 );
-            }else if(recognizeComment(gestureState)) {
+            } else if (recognizeComment(gestureState)) {
                 props.onShowModal()
             }
             return true;
         }
     });
 
-    
+    const shareCampsite = (title, message, url) => {
+        Share.share({
+            title: title,
+            message: `${title}: ${message} ${url}`,
+            url: url
+        }, {
+            dialogTitle: 'Share ' + title
+        });
+    };
 
     if (campsite) {
         return (
             <Animatable.View
                 animation='fadeInDown'
-                duration={2000} 
+                duration={2000}
                 delay={1000}
                 ref={view}
                 {...panResponder.panHandlers}>
@@ -94,6 +102,14 @@ function RenderCampsite(props) {
                             raised
                             reverse
                             onPress={() => props.onShowModal()}
+                        />
+                        <Icon
+                            name={'share'}
+                            type='font-awesome'
+                            color='#5637DD'
+                            raised
+                            reverse
+                            onPress={() => shareCampsite(campsite.name, campsite.description, baseUrl + campsite.image)}
                         />
                     </View>
                 </Card>
